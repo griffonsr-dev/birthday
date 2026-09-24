@@ -191,9 +191,9 @@ function InteractiveMemory({ photo, index, isFront, onBringForward }) {
 function App() {
   const [stage, setStage] = useState(0);
   const [cardOpen, setCardOpen] = useState(false);
-  const [musicEnabled, setMusicEnabled] = useState(false);
   const [secretUnlocked, setSecretUnlocked] = useState(false);
   const [frontMemory, setFrontMemory] = useState(0);
+  const audioRef = useRef(null);
 
   const advanceStory = () => {
     setStage((current) => {
@@ -231,27 +231,29 @@ function App() {
     return undefined;
   }, [stage]);
 
-  const musicAvailable = false;
+  const musicSource = '/assets/WhatsApp Audio 2026-09-25 at 00.09.42.mpeg';
+
+  useEffect(() => {
+    const startMusic = () => {
+      audioRef.current?.play().catch(() => undefined);
+    };
+
+    startMusic();
+    window.addEventListener('pointerdown', startMusic, { once: true });
+    window.addEventListener('keydown', startMusic, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', startMusic);
+      window.removeEventListener('keydown', startMusic);
+    };
+  }, []);
 
   const heartPhotos = birthdayData.photos.slice(0, 8);
 
   return (
     <main className="birthday-world">
       <Atmosphere stage={stage} photos={birthdayData.photos} />
-      {musicAvailable && (
-        <div className="music-control">
-          <button
-            type="button"
-            className="music-button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setMusicEnabled((enabled) => !enabled);
-            }}
-          >
-            {musicEnabled ? 'Pause music' : 'Play music'}
-          </button>
-        </div>
-      )}
+      <audio ref={audioRef} className="hidden-audio" src={musicSource} loop autoPlay preload="auto" />
 
       {stage > 0 && stage < actDurations.length - 1 && (
         <button type="button" className="story-continue" onClick={advanceStory}>

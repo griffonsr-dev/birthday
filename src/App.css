@@ -1709,6 +1709,10 @@
   cursor: pointer;
 }
 
+.hidden-audio {
+  display: none;
+}
+
 .story-continue {
   position: fixed;
   right: 24px;
